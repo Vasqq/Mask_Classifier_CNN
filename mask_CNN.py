@@ -15,7 +15,7 @@ import numpy as np
 #print(f'Is GPU avaialble?\n {torch.cuda.is_available()}')
 
 #   Hyper parameters
-NUM_EPOCHS = 10
+NUM_EPOCHS = 100
 BATCH_SIZE = 5
 LEARNING_RATE = 0.001
 IMG_SIZE = 32
@@ -89,6 +89,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE)
 n_total_steps = len(train_loader)
 loss_list = []
 acc_list = []
+"""
 
 #   Training loop
 
@@ -109,6 +110,12 @@ for epoch in range(NUM_EPOCHS):
         if(i+1) % 12 == 0:
             print(f'epoch {epoch + 1} / {NUM_EPOCHS}, step {i + 1}/{n_total_steps}, loss = {loss.item():.4f}')
 
+"""
+#FILE = "trained_model.pth"
+#torch.save(model.state_dict(), FILE)
+PATH = './trained_model.pth'
+model = ConvNN()
+model.load_state_dict(torch.load(PATH))
 
 # Testing
 
