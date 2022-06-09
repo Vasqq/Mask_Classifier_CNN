@@ -7,6 +7,11 @@ from torchvision import datasets
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import plot_confusion_matrix
+from skorch import NeuralNetClassifier
+from torch.utils.data import random_split
+
 
 # Device config
 
@@ -147,3 +152,38 @@ with torch.no_grad():
     for i in range(NUM_CLASSES):
         acc = 100.0 * n_class_correct[i] / n_class_samples[i]
         print(f'Accuracy of {classes[i]}: {acc:.3f} %')
+
+def evaluation(model):
+
+    Device = torch.device("cpu")
+
+    #split the datasets
+    m = len(train_dataset)
+    train_data, val_data = random_split(train_dataset, [int(m - m * 0.2), int(m * 0.2)])
+
+    y_train = np.array([y for x, y in iter(train_data)])
+
+    #using scorch
+    torch.manual_seed(0)
+
+    net = NeuralNetClassifier(
+    model,
+    max_epochs=1,
+    iterator_trainnum_workers=4,
+    iterator_validnum_workers=4,
+    lr=0.001,
+    batch_size=5,
+    optimizer=torch.optim,
+    criterion=nn.CrossEntropyLoss,
+    device=Device
+    )
+
+    net.fit(train_data, y=y_train)
+    y_pred = net.predict(test_dataset)
+    y_test = np.array([y for x, y in iter(test_dataset)])
+    accuracy_score(y_test, y_pred)
+    plot_confusion_matrix(net, test_dataset, y_test.reshape(-1, 1),display_labels = classes)
+    plt.show()
+
+
+evaluation(model)
