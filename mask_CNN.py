@@ -8,9 +8,11 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import plot_confusion_matrix
+from sklearn.metrics import plot_confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from skorch import NeuralNetClassifier
 from torch.utils.data import random_split
+#from torch.optim import lr_scheduler
+import torch.optim as optim
 
 
 # Device config
@@ -153,37 +155,33 @@ with torch.no_grad():
         acc = 100.0 * n_class_correct[i] / n_class_samples[i]
         print(f'Accuracy of {classes[i]}: {acc:.3f} %')
 
-def evaluation(model):
+m = len(train_dataset)
+val_size= int(m * 0.2)
+train_size = (m - int(m * 0.2))
+train_data , val_data =random_split(train_dataset, [train_size,val_size])
 
-    Device = torch.device("cpu")
+y_train = np.array([y for x, y in iter(train_data)])
 
-    #split the datasets
-    m = len(train_dataset)
-    train_data, val_data = random_split(train_dataset, [int(m - m * 0.2), int(m * 0.2)])
-
-    y_train = np.array([y for x, y in iter(train_data)])
-
-    #using scorch
-    torch.manual_seed(0)
-
-    net = NeuralNetClassifier(
-    model,
-    max_epochs=1,
-    iterator_trainnum_workers=4,
-    iterator_validnum_workers=4,
-    lr=0.001,
+torch.manual_seed(0)
+net = NeuralNetClassifier(
+    ConvNN,
+    max_epochs=10,
+    iterator_train__num_workers=0,
+    iterator_valid__num_workers=0,
+    lr=1e-3,
     batch_size=5,
-    optimizer=torch.optim,
-    criterion=nn.CrossEntropyLoss,
-    device=Device
-    )
+    optimizer=optim.SGD,
+    criterion=nn.CrossEntropyLoss
+)
+net.fit(train_data, y=y_train)
+y_pred = net.predict(test_dataset)
+y_test = np.array([y for x, y in iter(test_dataset)]) 
 
-    net.fit(train_data, y=y_train)
-    y_pred = net.predict(test_dataset)
-    y_test = np.array([y for x, y in iter(test_dataset)])
-    accuracy_score(y_test, y_pred)
-    plot_confusion_matrix(net, test_dataset, y_test.reshape(-1, 1),display_labels = classes)
-    plt.show()
+print(f"Precision is: {100 * precision_score(y_test,y_pred, average='weighted'):.3f} %")
+print(f"Accuracy is: {100 * accuracy_score(y_test,y_pred):.3f} %")
+print(f"Recall is: {100 * recall_score(y_test,y_pred, average='weighted'):.3f} %")
+print(f"F1 is: {100 * f1_score(y_test,y_pred, average='weighted'):.3f} %")
 
+plot_confusion_matrix(net, test_dataset, y_test.reshape(-1, 1))
+plt.show()
 
-evaluation(model)
