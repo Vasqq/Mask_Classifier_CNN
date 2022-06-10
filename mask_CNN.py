@@ -22,8 +22,8 @@ import torch.optim as optim
 #print(f'Is GPU avaialble?\n {torch.cuda.is_available()}')
 
 #   Hyper parameters
-NUM_EPOCHS = 100
-BATCH_SIZE = 5
+NUM_EPOCHS = 50
+BATCH_SIZE = 32
 LEARNING_RATE = 0.001
 IMG_SIZE = 32
 
@@ -96,9 +96,9 @@ optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE)
 n_total_steps = len(train_loader)
 loss_list = []
 acc_list = []
-"""
 
 #   Training loop
+"""
 
 for epoch in range(NUM_EPOCHS):
 
@@ -116,8 +116,9 @@ for epoch in range(NUM_EPOCHS):
 
         if(i+1) % 12 == 0:
             print(f'epoch {epoch + 1} / {NUM_EPOCHS}, step {i + 1}/{n_total_steps}, loss = {loss.item():.4f}')
-
 """
+
+
 #FILE = "trained_model.pth"
 #torch.save(model.state_dict(), FILE)
 PATH = './trained_model.pth'
@@ -155,6 +156,8 @@ with torch.no_grad():
         acc = 100.0 * n_class_correct[i] / n_class_samples[i]
         print(f'Accuracy of {classes[i]}: {acc:.3f} %')
 
+
+
 m = len(train_dataset)
 val_size= int(m * 0.2)
 train_size = (m - int(m * 0.2))
@@ -182,6 +185,5 @@ print(f"Accuracy is: {100 * accuracy_score(y_test,y_pred):.3f} %")
 print(f"Recall is: {100 * recall_score(y_test,y_pred, average='weighted'):.3f} %")
 print(f"F1 is: {100 * f1_score(y_test,y_pred, average='weighted'):.3f} %")
 
-plot_confusion_matrix(net, test_dataset, y_test.reshape(-1, 1))
+plot_confusion_matrix(net, test_dataset, y_test.reshape(-1, 1),display_labels= classes)
 plt.show()
-
