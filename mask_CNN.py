@@ -11,7 +11,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import plot_confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from skorch import NeuralNetClassifier
 from torch.utils.data import random_split
-#from torch.optim import lr_scheduler
 import torch.optim as optim
 
 
@@ -23,7 +22,7 @@ import torch.optim as optim
 
 #   Hyper parameters
 NUM_EPOCHS = 50
-BATCH_SIZE = 32
+BATCH_SIZE = 5
 LEARNING_RATE = 0.001
 IMG_SIZE = 32
 
@@ -90,13 +89,6 @@ class ConvNN(nn.Module):
 
 model = ConvNN()
 
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE)
-
-n_total_steps = len(train_loader)
-loss_list = []
-acc_list = []
-
 #   Training loop
 """
 
@@ -121,11 +113,12 @@ for epoch in range(NUM_EPOCHS):
 
 #FILE = "trained_model.pth"
 #torch.save(model.state_dict(), FILE)
-PATH = './trained_model.pth'
-model = ConvNN()
-model.load_state_dict(torch.load(PATH))
+#PATH = './trained_model.pth'
+#model = ConvNN()
+# model.load_state_dict(torch.load(PATH))
 
 # Testing
+"""
 
 with torch.no_grad():
     n_correct = 0
@@ -156,7 +149,12 @@ with torch.no_grad():
         acc = 100.0 * n_class_correct[i] / n_class_samples[i]
         print(f'Accuracy of {classes[i]}: {acc:.3f} %')
 
-
+"""
+def imshow(img):
+    img = img / 2 + 0.5     # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
 
 m = len(train_dataset)
 val_size= int(m * 0.2)
@@ -168,11 +166,11 @@ y_train = np.array([y for x, y in iter(train_data)])
 torch.manual_seed(0)
 net = NeuralNetClassifier(
     ConvNN,
-    max_epochs=10,
+    max_epochs=2,
     iterator_train__num_workers=0,
     iterator_valid__num_workers=0,
     lr=1e-3,
-    batch_size=5,
+    batch_size=32,
     optimizer=optim.SGD,
     criterion=nn.CrossEntropyLoss
 )
