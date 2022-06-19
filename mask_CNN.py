@@ -28,9 +28,13 @@ transform = transforms.Compose([
 
 #  Get and split dataset
 dataset = torchvision.datasets.ImageFolder(root = './data', transform=transform)
-train_dataset, test_dataset = train_test_split(dataset, test_size = 0.2)
+#train_dataset, test_dataset = train_test_split(dataset, test_size = 0.2)
+m = len(dataset)
+test_size= int(m * 0.2)
+train_size = (m - int(m * 0.2))
+train_dataset , test_dataset =random_split(dataset, [train_size, test_size])
 
-print(len(test_dataset))
+print(len(train_dataset))
 
 # Load data
 
@@ -39,24 +43,6 @@ test_loader = DataLoader(dataset = test_dataset, batch_size = BATCH_SIZE, shuffl
 
 classes = ('maskless_mask','cloth_mask', 'surgical_mask', 'n95_mask')
 NUM_CLASSES = len(classes)
-
-"""
-def imshow(img):
-    img = img / 2 + 0.5     # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.show()
-
-
-# get some random training images
-dataiter = iter(train_loader)
-images, labels = dataiter.next()
-
-# show images
-imshow(torchvision.utils.make_grid(images))
-# print labels
-print(' '.join(f'{classes[labels[j]]:5s}' for j in range(BATCH_SIZE)))
-"""
 
 # Define model
 
@@ -111,7 +97,7 @@ y_train = np.array([y for x, y in iter(train_data)])
 torch.manual_seed(0)
 net = NeuralNetClassifier(
     ConvNN,
-    max_epochs=2,
+    max_epochs=50,
     iterator_train__num_workers=0,
     iterator_valid__num_workers=0,
     lr=1e-3,
