@@ -13,8 +13,10 @@ from sklearn.model_selection import train_test_split
 from skorch import NeuralNetClassifier
 from torch.utils.data import random_split
 import torch.optim as optim
+import pickle
 
-#   Hyper parameters
+
+# Hyper parameters
 NUM_EPOCHS = 2
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
@@ -28,13 +30,10 @@ transform = transforms.Compose([
 
 #  Get and split dataset
 dataset = torchvision.datasets.ImageFolder(root = './data', transform=transform)
-#train_dataset, test_dataset = train_test_split(dataset, test_size = 0.2)
 m = len(dataset)
 test_size= int(m * 0.2)
 train_size = (m - int(m * 0.2))
 train_dataset , test_dataset =random_split(dataset, [train_size, test_size])
-
-print(len(train_dataset))
 
 # Load data
 
@@ -105,7 +104,19 @@ net = NeuralNetClassifier(
     optimizer=optim.SGD,
     criterion=nn.CrossEntropyLoss
 )
+# Do not remove comments bellow if the model is already trained
+"""
+
 net.fit(train_data, y=y_train)
+
+# saving model
+with open('saved_model', 'wb') as f:
+    pickle.dump(net, f)
+"""
+# loading model
+with open('saved_model', 'rb') as f:
+    net = pickle.load(f)
+
 y_pred = net.predict(test_dataset)
 y_test = np.array([y for x, y in iter(test_dataset)]) 
 
@@ -116,4 +127,6 @@ print(f"F1 is: {100 * f1_score(y_test,y_pred, average='weighted'):.3f} %")
 
 plot_confusion_matrix(net, test_dataset, y_test.reshape(-1, 1),display_labels= classes)
 plt.show()
+
+
 
