@@ -15,7 +15,6 @@ from torch.utils.data import random_split
 import torch.optim as optim
 import pickle
 
-
 # Hyper parameters
 NUM_EPOCHS = 2
 BATCH_SIZE = 32
@@ -28,26 +27,23 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-#  Get and split dataset
+#  Get and split dataset in training and testing datasets
 dataset = torchvision.datasets.ImageFolder(root = './data', transform=transform)
 m = len(dataset)
 test_size= int(m * 0.2)
 train_size = (m - int(m * 0.2))
 train_dataset , test_dataset =random_split(dataset, [train_size, test_size])
 
-# Load data
-
-train_loader = DataLoader(dataset = train_dataset, batch_size = BATCH_SIZE, shuffle = True)
-test_loader = DataLoader(dataset = test_dataset, batch_size = BATCH_SIZE, shuffle = False)
-
 classes = ('maskless_mask','cloth_mask', 'surgical_mask', 'n95_mask')
 NUM_CLASSES = len(classes)
+
 
 # Define model
 
 class ConvNN(nn.Module):
     def __init__(self):
         super(ConvNN, self).__init__()
+
         self.conv_layer = nn.Sequential(
         nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, padding=1),
         nn.BatchNorm2d(32),
@@ -101,21 +97,39 @@ net = NeuralNetClassifier(
     iterator_valid__num_workers=0,
     lr=1e-3,
     batch_size=32,
-    optimizer=optim.SGD,
+    optimizer=optim.Adam,
     criterion=nn.CrossEntropyLoss
 )
-# Do not remove comments bellow if the model is already trained
+
+# Do not remove comments bellow if the model is already trained and saved
+
 """
 
 net.fit(train_data, y=y_train)
 
+val_loss=[]
+train_loss=[]
+for i in range(50):
+    val_loss.append(net.history[i]['valid_loss'])
+    train_loss.append(net.history[i]['train_loss'])
+    
+plt.figure(figsize=(10,8))
+plt.semilogy(train_loss, label='Train loss')
+plt.semilogy(val_loss, label='Validation loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.grid()
+plt.legend()
+plt.show()    
+
 # saving model
-with open('saved_model', 'wb') as f:
+with open('saved_model_part1', 'wb') as f:
     pickle.dump(net, f)
 """
 # loading model
-with open('saved_model', 'rb') as f:
+with open('saved_model_part1', 'rb') as f:
     net = pickle.load(f)
+
 
 y_pred = net.predict(test_dataset)
 y_test = np.array([y for x, y in iter(test_dataset)]) 
