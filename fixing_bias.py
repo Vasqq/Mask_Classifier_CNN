@@ -30,7 +30,9 @@ transform = transforms.Compose([
 
 #  Get and split dataset
 dataset = torchvision.datasets.ImageFolder(root = './data', transform=transform)
-bias_dataset = torchvision.datasets.ImageFolder(root = './phase_2_dataset/Women', transform=transform)
+bias_dataset = torchvision.datasets.ImageFolder(root = './phase_2_dataset/Men', transform=transform)
+
+print(len(bias_dataset))
 
 m = len(dataset)
 test_size= int(m * 0.2)
