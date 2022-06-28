@@ -1,4 +1,4 @@
-# COMP 472
+# COMP 472 -  Artificial Intelligence
 
 ### Mask classifier using a Convolutional Neural Network
 
