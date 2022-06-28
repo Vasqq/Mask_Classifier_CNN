@@ -8,7 +8,7 @@ Develop a system using AI that can analyze images of faces and detect whether a 
 
 Detect and remove a bias (if any) the system exhibits.
 
-Improve the system's performance using k-fold cross validation
+Improve the system's performance using k-fold cross validation.
 
    ## Description of the project:
    
